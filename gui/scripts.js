@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('valueForm');
     const tableBody = document.querySelector('#valuesTable tbody');
+    const detailModal = document.getElementById('detailModal');
+    const closeModal = document.querySelector('.close');
+    const objectDetails = document.getElementById('objectDetails');
 
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -50,6 +53,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${item.currentValue}</td>
                     <td>${item.incomeFromRents}</td>
                 `;
+                row.addEventListener('click', function() {
+                    fetchDetailData(item.id);
+                });
                 tableBody.appendChild(row);
             });
         })
@@ -57,6 +63,35 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error:', error);
         });
     }
+
+    function fetchDetailData(id) {
+        fetch(`/api/values/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            objectDetails.innerHTML = `
+                <p><strong>Object Name:</strong> ${data.objectName}</p>
+                <p><strong>Address:</strong> ${data.address}</p>
+                <p><strong>Purchase Date:</strong> ${data.purchaseDate}</p>
+                <p><strong>Purchase Price:</strong> ${data.purchasePrice}</p>
+                <p><strong>Current Value:</strong> ${data.currentValue}</p>
+                <p><strong>Income from Rents:</strong> ${data.incomeFromRents}</p>
+            `;
+            detailModal.style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    closeModal.addEventListener('click', function() {
+        detailModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target == detailModal) {
+            detailModal.style.display = 'none';
+        }
+    });
 
     fetchData();
 });
